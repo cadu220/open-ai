@@ -1,10 +1,8 @@
 package com.cadu.api_ai.memory;
 
-import com.cadu.api_ai.chat.ChatMessage;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat-memory")
@@ -16,10 +14,26 @@ public class MemoryChatController {
         this.memoryChatService = memoryChatService;
     }
 
-    @PostMapping
-    ChatMessage simpleChat(@RequestBody ChatMessage message){
-        String response = this.memoryChatService.simpleChat(message.message());
-        return new ChatMessage(response);
+    @PostMapping("/{chatId}")
+    ChatMessage simpleChat(@PathVariable String chatId,  @RequestBody ChatMessage message){
+        String response = this.memoryChatService.simpleChat(message.content(), chatId);
+        return new ChatMessage(response, "ASSISTANT");
     }
+
+    @PostMapping("/start")
+    NewChatResponse startNewChat(@RequestBody ChatMessage chatMessage){
+        return this.memoryChatService.createNewChatResponse(chatMessage.content());
+    }
+
+    @GetMapping
+    List<Chat> getAllChatsForUser(){
+        return memoryChatService.getAllChatsForUser();
+    }
+
+    @GetMapping("/{chatId}")
+    public List<ChatMessage> getChatMessages(@PathVariable String chatId) {
+        return this.memoryChatService.getAllChatsMessages(chatId);
+    }
+
 
 }
